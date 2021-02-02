@@ -1,0 +1,44 @@
+﻿@page "/signin"
+
+
+<style>
+.w-100{
+    width: 100% !important;
+}
+</style>
+
+<h3>Signin</h3>
+
+<div>
+    <div>
+        <MatTextField @bind-Value="@user.UserId" Label="아이디" Outlined="true" Required="true"></MatTextField>
+    </div>
+
+    <div>
+        <MatTextField @bind-Value="@user.Passwd" Label="비밀번호" Outlined="true" Required="true"></MatTextField>
+    </div>
+
+    <div>
+        <MatButton Raised="true" OnClick="@SigninClick" >sign in</MatButton>
+        <MatButton Outlined="true" OnClick="@CancelClick" >cancel</MatButton>
+    </div>
+</div>
+
+
+<MatDialog IsOpen="@projectSelectDialogIsOpen" CanBeClosed="false">
+    <MatDialogTitle>프로젝트 선택</MatDialogTitle>
+    <MatDialogContent>
+        <MatSelect TValue="int"  Outlined="true" @bind-Value="selectedProjectId"  >
+            @foreach(var x in userProjectMapngs){
+                var @id = x.UserProjectMapngId;
+                var @name = x.Project.ProjectName;
+
+                <MatOption TValue="int" Value="@id" >@name</MatOption>
+            }
+        </MatSelect>
+    </MatDialogContent>    
+    <MatDialogActions>
+        <MatButton Outlined="true" OnClick="@(()=>ProjectSelectClick())" Value="선택"></MatButton>
+        <MatButton Outlined="true" OnClick="@(()=>ProjectSelectCancelClick())" Value="취소"></MatButton>
+    </MatDialogActions>
+</MatDialog>

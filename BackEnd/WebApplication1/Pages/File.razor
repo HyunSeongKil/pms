@@ -1,0 +1,73 @@
+﻿@page "/file"
+@using System.Text.Json;
+@using WebApplication1.Util;
+@using WebApplication1.Model;
+
+
+<style>
+    .text-right {
+        text-align: right !important;
+    }
+
+    .w-50 {
+        width: 50% !important;
+    }
+
+    .fw-bold{
+        font-weight: bold !important;
+    }
+    
+    .ml-10{
+        margin-left: 10px !important;
+    }
+</style>
+
+
+<h3>File</h3>
+
+<div>
+    @for(int i=0; i<dirs.Count; i++)
+    {
+        <!--중요-->
+        var index = i;
+
+        <MatButton OnClick="@((e)=>BreadcumbClick(e, index))" Label="@dirs[index]"></MatButton>
+        <span>&gt;</span>
+    }
+</div>
+
+<div>
+        <MatTable Items="@files" PageSize="100" ShowPaging="false" class="mat-elevation-z5">
+            <MatTableHeader>
+                <th class="w-50">이름</th>
+                <th>크기</th>
+                <th>유형</th>
+                <th>Date</th>
+            </MatTableHeader>
+            <MatTableRow>
+                <td>
+                    <a href="javascript:;" @onclick="@((e)=>ServerFileClick(e, context.IsDirectory, context.Name))" >@context.Name</a>
+                </td>
+                <td class="text-right">@(String.Format("{0:n0}", context.Size)) </td>
+                <td>
+                    @if (@context.IsDirectory)
+                    {
+                        <span>&lt;DIR&gt;</span>
+                    }
+                </td>
+                <td>@context.Date</td>
+            </MatTableRow>
+        </MatTable>
+ 
+</div>
+
+<div>
+    <span>폴더 <span class="fw-bold">@directoryCo</span>개</span> 
+    <span class="ml-10">파일 <span class="fw-bold">@fileCo</span>개</span> 
+    <span class="ml-10">파일크기 <span class="fw-bold">@(String.Format("{0:n0}", fileSize))</span>바이트</span> 
+</div>
+
+<MatButton OnClick="@Click">click</MatButton>
+<MatButton OnClick="@UpDirClick">↑</MatButton>
+
+

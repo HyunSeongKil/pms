@@ -1,0 +1,170 @@
+﻿@page "/eventCalendar"
+@using WebApplication1.Model
+
+<style>
+    .align-baseline{
+        vertical-align: baseline !important;
+    }
+
+    .cursor-pointer {
+        cursor: pointer !important;
+    }
+
+    .d--1 {
+        display: none;
+    }
+
+    .cal-week {
+        height: 120px;
+    }
+
+    .cal-day {
+        width: 200px;
+        vertical-align: baseline !important;
+        padding-bottom: 2px;
+    }
+    .cal-day:hover{
+        background-color:#efefef;
+    }
+
+    .cal-day-day{
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .cal-day-event{
+        cursor: pointer;
+    }
+
+
+    .dow-0 {
+        color: red;
+    }
+
+    .dow-6 {
+        color: blue;
+    }
+
+    .mdc-dialog  .mdc-dialog__surface{
+        width: 500px;
+        height: 400px;
+    }
+
+    .w-100{
+        width: 100% !important;
+    }
+
+    .text-left{
+        text-align: left !important;
+    }
+</style>
+
+
+<h1>달력</h1>
+
+<div class="mat-layout-grid">
+    <div class="mat-layout-grid-inner">
+
+        <div class="mat-layout-grid-cell">
+            <MatBlazor.MatButton OnClick="@PrevYearClick">△</MatBlazor.MatButton>
+
+            <MatBlazor.MatSelect Label="년도" Outlined="true" Value="@year" ValueChanged="@((int y)=>YearChange(y))">
+                @foreach (int y in years)
+                {
+                    <MatBlazor.MatOption TValue="int" Value="@y">@y</MatBlazor.MatOption>
+                }
+            </MatBlazor.MatSelect>
+
+            <MatBlazor.MatButton OnClick="@NextYearClick">▽</MatBlazor.MatButton>
+        </div>
+
+
+
+        <div class="mat-layout-grid-cell">
+            <MatBlazor.MatButton OnClick="@PrevMonthClick">△</MatBlazor.MatButton>
+
+            <MatBlazor.MatSelect Label="월" Outlined="true" Value="@month" ValueChanged="@((int y)=>MonthChange(y))">
+                @foreach (int m in months)
+                {
+                    <MatBlazor.MatOption TValue="int" Value="@m">@m</MatBlazor.MatOption>
+                }
+            </MatBlazor.MatSelect>
+
+            <MatBlazor.MatButton OnClick="@NextMonthClick">▽</MatBlazor.MatButton>
+        </div>
+    </div>
+</div>
+
+
+<div class="">
+    <table class="mat-elevation-z5 ">
+        <thead style="background-color:#efefef;">
+            <tr style="height:50px;">
+                <th>일</th>
+                <th>월</th>
+                <th>화</th>
+                <th>수</th>
+                <th>목</th>
+                <th>금</th>
+                <th>토</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int weekIndex = 0; weekIndex <= 5; weekIndex++)
+            {
+                <tr class="cal-week">
+
+                    @for (int dow = 0; dow <= 6; dow++)
+                    {
+                        DayModel day = GetDay(weekIndex, dow);
+                        if (null != day)
+                        {
+                            <td class="cal-day dow-@dow" data-dow="@dow" data-day="@day.Day">
+                                <div class="cal-day-day" @onclick="@((e)=>AddEventClick(e, day.Day))">@day.Day</div>
+                                @if(null != day.DayEvents && 0 < day.DayEvents.Count){
+                                    @foreach(DayEvent de in day.DayEvents)
+                                    {
+                                        <div class="cal-day-event" @onclick="@(e=>ViewEventClick(e, day.Day, de.Id))">@de.EventTitle</div>
+                                    }
+                                }
+                            </td>
+                        }
+                        else
+                        {
+                            <td class="dow-@dow" data-dow="@dow"></td>
+                        }
+
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+
+<MatBlazor.MatDialog IsOpen="@addEventDialogIsOpen" CanBeClosed="false" >
+    <MatBlazor.MatDialogTitle>이벤트 등록</MatBlazor.MatDialogTitle>
+    <MatBlazor.MatDialogContent>
+        <MatBlazor.MatTextField @ref="@titleTextField"  Label="제목" Outlined="true" FullWidth="true" @bind-Value="@dayEvent.EventTitle"></MatBlazor.MatTextField>
+        <MatBlazor.MatTextField Label="내용" Outlined="true" FullWidth="true" TextArea="true" @bind-Value="@dayEvent.EventCn" Style="height:50%;"></MatBlazor.MatTextField>
+    </MatBlazor.MatDialogContent>
+
+    <MatBlazor.MatDialogActions>
+        <MatBlazor.MatButton OnClick="@(()=>AddEvent())">저장</MatBlazor.MatButton>
+        <MatBlazor.MatButton OnClick="@(()=>addEventDialogIsOpen=false)">닫기</MatBlazor.MatButton>
+    </MatBlazor.MatDialogActions>
+</MatBlazor.MatDialog>
+
+
+<MatBlazor.MatDialog IsOpen="@viewEventDialogIsOpen" CanBeClosed="false" >
+    <MatBlazor.MatDialogTitle>이벤트 조회</MatBlazor.MatDialogTitle>
+    <MatBlazor.MatDialogContent>
+        <div>제목</div>
+        <div>@viewEvent.EventTitle</div>
+    </MatBlazor.MatDialogContent>
+
+    <MatBlazor.MatDialogActions>
+        <MatBlazor.MatButton OnClick="@(()=>viewEventDialogIsOpen=false)">닫기</MatBlazor.MatButton>
+    </MatBlazor.MatDialogActions>
+</MatBlazor.MatDialog>
+
